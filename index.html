@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Warung Seblak — Pesan Cepat via WA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            chili: {
+              50: '#fff5f5',
+              100: '#ffe3e3',
+              200: '#ffc9c9',
+              500: '#e03131',
+              600: '#c92a2a',
+              700: '#a61e1e',
+            },
+            warm: {
+              50: '#fffbf5',
+              100: '#fff4e6',
+              200: '#ffe8cc',
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      background-color: #fffbf5;
+      color: #291714;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-32 selection:bg-chili-200 selection:text-chili-700">
+  <!-- =====================================================================
+       KONFIGURASI MENU & HARGA JUAL WARUNG SEBLAK
+       Catatan: Hanya harga jual yang tampil untuk customer.
+       Anda bebas mengubah nominal harga atau daftar menu di bawah ini.
+       ===================================================================== -->
+  <script>
+    const KONFIGURASI_WARUNG = {
+      namaWarung: "Warung Seblak",
+      noWhatsApp: "6289659081237", // Format 62 tanpa +
+      storageKey: "warung_seblak_last_order_v1",
+      toppingSatuan: [
+        { id: "top-kerupuk-oren", nama: "Kerupuk Oren", kategori: "Kerupuk & Mie", harga: 1500 },
+        { id: "top-kerupuk-mie", nama: "Kerupuk Mie", kategori: "Kerupuk & Mie", harga: 1500 },
+        { id: "top-makaroni", nama: "Makaroni", kategori: "Kerupuk & Mie", harga: 1500 },
+        { id: "top-cuanki-lidah", nama: "Cuanki Lidah", kategori: "Keringan", harga: 2000 },
+        { id: "top-cuanki-tahu", nama: "Cuanki Tahu", kategori: "Keringan", harga: 2000 },
+        { id: "top-siomay-kering", nama: "Siomay Kering", kategori: "Keringan", harga: 2000 },
+        { id: "top-batagor-kering", nama: "Batagor Kering", kategori: "Keringan", harga: 2000 },
+        { id: "top-cikur", nama: "Cikur", kategori: "Keringan", harga: 1000 },
+        { id: "top-mie-kuning", nama: "Mie Kuning", kategori: "Kerupuk & Mie", harga: 2000 },
+        { id: "top-sosis", nama: "Sosis", kategori: "Topping", harga: 2500 },
+        { id: "top-bakso", nama: "Bakso", kategori: "Topping", harga: 2500 },
+        { id: "top-cikua", nama: "Cikua", kategori: "Topping", harga: 2500 },
+        { id: "top-dumpling-keju", nama: "Dumpling Keju", kategori: "Topping", harga: 3500 },
+        { id: "top-telur", nama: "Telur", kategori: "Protein", harga: 3000 },
+        { id: "top-ceker-ayam", nama: "Ceker Ayam", kategori: "Protein", harga: 4000 },
+        { id: "top-tulang-ayam", nama: "Tulang Ayam", kategori: "Protein", harga: 4000 },
+        { id: "top-sawi-hijau", nama: "Sawi Hijau", kategori: "Sayur", harga: 1000 }
+      ],
+      paketMenu: [
+        {
+          id: "pkt-original",
+          nama: "Seblak Original",
+          deskripsi: "Kerupuk campur, makaroni, telur, sawi, kuah kencur",
+          harga: 10000,
+          badge: "Hemat"
+        },
+        {
+          id: "pkt-ceker",
+          nama: "Seblak Ceker",
+          deskripsi: "Ceker empuk, kerupuk campur, mie kuning, telur, sawi",
+          harga: 13000,
+          badge: "Favorit"
+        },
+        {
+          id: "pkt-tulang",
+          nama: "Seblak Tulang",
+          deskripsi: "Tulang ayam gurih, kerupuk campur, cuanki, sawi",
+          harga: 14000,
+          badge: "Lariss"
+        },
+        {
+          id: "pkt-komplit",
+          nama: "Seblak Komplit Spesial",
+          deskripsi: "Ceker, tulang, dumpling keju, sosis, bakso, telur, kerupuk",
+          harga: 17000,
+          badge: "Komplit"
+        }
+      ],
+      levelPedasList: [
+        { value: "Level 0", label: "Lv 0", sub: "Tidak pedas" },
+        { value: "Level 1", label: "Lv 1", sub: "Pedas tipis" },
+        { value: "Level 2", label: "Lv 2", sub: "Sedang" },
+        { value: "Level 3", label: "Lv 3", sub: "Pedas" },
+        { value: "Level 4", label: "Lv 4", sub: "Extra" },
+        { value: "Level 5", label: "Lv 5", sub: "Super Hot" }
+      ],
+      tingkatKuahList: [
+        "Kuah Nyemek",
+        "Kuah Banyak",
+        "Kering / Tumis"
+      ],
+      tingkatMatangList: [
+        "Matang Sedang",
+        "Matang Empuk"
+      ]
+    };
+  </script>
+
+  <!-- Toast Notifikasi Non-Blocking -->
+  <div
+    id="toastBox"
+    role="status"
+    aria-live="polite"
+    class="fixed top-4 left-1/2 -translate-x-1/2 z-50 hidden max-w-[92vw] w-max bg-stone-900 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-2xl shadow-lg border border-stone-700 flex items-center gap-2"
+  >
+    <span id="toastIcon">✅</span>
+    <span id="toastText">Berhasil</span>
+  </div>
+
+  <!-- 1. HEADER -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-chili-100">
+    <div class="max-w-xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-chili-500 to-chili-700 text-white flex items-center justify-center text-xl shadow-xs shrink-0">
+          🌶️
+        </div>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-extrabold tracking-tight text-stone-900 truncate">
+              Warung Seblak
+            </h1>
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 shrink-0">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              Buka
+            </span>
+          </div>
+          <p class="text-[11px] text-stone-500 truncate">
+            Tanpa minimal order • Kirim langsung ke WA
+          </p>
+        </div>
+      </div>
+
+      <button
+        id="btnPesanUlangHeader"
+        type="button"
+        onclick="muatPesananTerakhir()"
+        class="hidden shrink-0 px-3 py-2 rounded-xl text-xs font-bold bg-amber-100 hover:bg-amber-200 active:scale-95 text-amber-900 border border-amber-200 transition items-center gap-1"
+        title="Muat ulang pesanan terakhir Anda"
+      >
+        <span>🔁</span>
+        <span>Pesan Lagi</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-xl mx-auto px-4 pt-4 space-y-4">
+    <!-- 2. PILIH LANGKAH PEMESANAN (SIMPEL & RINGKAS) -->
+    <section aria-labelledby="langkahHeading" class="bg-white rounded-3xl p-4 border border-chili-100 shadow-xs space-y-3">
+      <h2 id="langkahHeading" class="text-sm sm:text-base font-extrabold text-stone-900">
+        Pilih Langkah Pemesanan
+      </h2>
+
+      <div class="grid grid-cols-2 gap-2.5">
+        <!-- Pilihan 1: Datang & Menunggu -->
+        <button
+          type="button"
+          id="btnModeDatang"
+          onclick="setLangkahPesan('datang')"
+          class="text-left p-3.5 rounded-2xl border-2 transition active:scale-[0.98] border-chili-600 bg-chili-50/70"
+        >
+          <div class="flex items-center justify-between gap-1">
+            <span class="text-xs sm:text-sm font-extrabold text-stone-900">1. Datang &amp; Menunggu</span>
+          </div>
+          <p class="text-[11px] text-stone-500 mt-1">Scan/pesan di tempat</p>
+        </button>
+
+        <!-- Pilihan 2: Pesan via WA -->
+        <button
+          type="button"
+          id="btnModeWa"
+          onclick="setLangkahPesan('wa')"
+          class="text-left p-3.5 rounded-2xl border-2 transition active:scale-[0.98] border-stone-200 bg-white hover:border-chili-300"
+        >
+          <div class="flex items-center justify-between gap-1">
+            <span class="text-xs sm:text-sm font-extrabold text-stone-900">2. Pesan via WA</span>
+          </div>
+          <p class="text-[11px] text-stone-500 mt-1">Matang lalu diambil</p>
+        </button>
+      </div>
+
+      <!-- Input Kontekstual sesuai Pilihan 1 atau 2 -->
+      <div id="boxInputDatang">
+        <input
+          type="text"
+          id="inputNoMeja"
+          oninput="updateUI()"
+          placeholder="No. Meja (opsional, misal: Meja 2)"
+          class="w-full px-3.5 py-2.5 rounded-2xl border border-stone-300 focus:border-chili-500 focus:ring-2 focus:ring-chili-200 outline-none text-xs sm:text-sm bg-warm-50/40"
+        />
+      </div>
+
+      <div id="boxInputWa" class="hidden">
+        <input
+          type="text"
+          id="inputJamAmbil"
+          oninput="updateUI()"
+          placeholder="Jam Ambil / Catatan (opsional, misal: jam 17.30)"
+          class="w-full px-3.5 py-2.5 rounded-2xl border border-stone-300 focus:border-chili-500 focus:ring-2 focus:ring-chili-200 outline-none text-xs sm:text-sm bg-emerald-50/40"
+        />
+      </div>
+    </section>
+
+    <!-- 3. TAB MENU: RACIK TOPING SATUAN (AKTIF DEFAULT) & MENU PAKET JADI -->
+    <section aria-labelledby="menuHeading" class="bg-white rounded-3xl p-4 border border-chili-100 shadow-xs space-y-3.5">
+      <div class="flex items-center justify-between gap-2">
+        <h2 id="menuHeading" class="text-sm sm:text-base font-extrabold text-stone-900">
+          Pilih Menu Seblak
+        </h2>
+        <button
+          type="button"
+          onclick="resetKeranjang()"
+          class="text-xs font-semibold text-stone-500 hover:text-chili-600 px-2.5 py-1 rounded-xl hover:bg-chili-50 transition"
+        >
+          Reset
+        </button>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-warm-100 border border-warm-200">
+        <button
+          type="button"
+          id="tabBtnTopping"
+          onclick="gantiTabMenu('topping')"
+          class="py-2.5 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition bg-chili-600 text-white shadow-xs flex items-center justify-center gap-1.5"
+        >
+          <span>🍢 Racik Toping Satuan</span>
+          <span id="badgeQtyTopping" class="hidden px-1.5 py-0.2 rounded-full text-[10px] bg-white text-chili-700 font-extrabold">0</span>
+        </button>
+
+        <button
+          type="button"
+          id="tabBtnPaket"
+          onclick="gantiTabMenu('paket')"
+          class="py-2.5 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition text-stone-700 hover:bg-white/70 flex items-center justify-center gap-1.5"
+        >
+          <span>🍲 Menu Paket Jadi</span>
+          <span id="badgeQtyPaket" class="hidden px-1.5 py-0.2 rounded-full text-[10px] bg-chili-600 text-white font-extrabold">0</span>
+        </button>
+      </div>
+
+      <!-- TAB 1 (DEFAULT): RACIK TOPING SATUAN -->
+      <div id="panelTopping" class="space-y-2.5">
+        <!-- Filter Kategori Singkat -->
+        <div id="filterKategoriBar" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5"></div>
+
+        <!-- List Topping Satuan -->
+        <div id="listToppingContainer" class="divide-y divide-stone-100 border border-stone-200/80 rounded-2xl overflow-hidden bg-white"></div>
+      </div>
+
+      <!-- TAB 2: MENU PAKET JADI -->
+      <div id="panelPaket" class="hidden space-y-2.5">
+        <p class="text-[11px] text-stone-500">
+          Bisa digabung dengan tambahan topping dari tab <strong>Racik Toping Satuan</strong>.
+        </p>
+        <div id="listPaketContainer" class="grid grid-cols-1 gap-2.5"></div>
+      </div>
+    </section>
+
+    <!-- 4. OPSI RACIKAN (RINGKAS) -->
+    <section aria-labelledby="racikanHeading" class="bg-white rounded-3xl p-4 border border-chili-100 shadow-xs space-y-4">
+      <h2 id="racikanHeading" class="text-sm sm:text-base font-extrabold text-stone-900">
+        Opsi Racikan
+      </h2>
+
+      <!-- Level Pedas 0 - 5 -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-xs font-bold text-stone-700">Level Pedas (0–5)</label>
+          <span id="teksPedasTerpilih" class="text-xs font-extrabold text-chili-600">Level 2 • Sedang</span>
+        </div>
+        <div id="gridLevelPedas" class="grid grid-cols-3 sm:grid-cols-6 gap-1.5"></div>
+      </div>
+
+      <!-- Tingkat Kuah & Kematangan -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1.5">Tingkat Kuah</label>
+          <div id="gridKuah" class="grid grid-cols-3 sm:grid-cols-1 gap-1.5"></div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-stone-700 mb-1.5">Kematangan</label>
+          <div id="gridMatang" class="grid grid-cols-2 sm:grid-cols-1 gap-1.5"></div>
+        </div>
+      </div>
+
+      <!-- Input Nama Pemesan & Catatan Khusus -->
+      <div class="space-y-2.5 pt-1 border-t border-stone-100">
+        <div>
+          <label for="inputNama" class="block text-xs font-bold text-stone-700 mb-1">
+            Nama Pemesan <span class="text-chili-600">*</span>
+          </label>
+          <input
+            type="text"
+            id="inputNama"
+            oninput="updateUI()"
+            placeholder="Tulis nama Anda"
+            class="w-full px-3.5 py-2.5 rounded-2xl border border-stone-300 focus:border-chili-500 focus:ring-2 focus:ring-chili-200 outline-none text-sm bg-white"
+          />
+          <p id="errNama" class="hidden mt-1 text-xs font-semibold text-chili-600">
+            Mohon isi nama pemesan dulu ya.
+          </p>
+        </div>
+
+        <div>
+          <label for="inputCatatan" class="block text-xs font-bold text-stone-700 mb-1">
+            Catatan Khusus (Opsional)
+          </label>
+          <input
+            type="text"
+            id="inputCatatan"
+            oninput="updateUI()"
+            placeholder="Contoh: tanpa daun bawang, kuah dipisah"
+            class="w-full px-3.5 py-2.5 rounded-2xl border border-stone-300 focus:border-chili-500 focus:ring-2 focus:ring-chili-200 outline-none text-sm bg-white"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. RINGKASAN PESANAN -->
+    <section id="ringkasanBox" aria-labelledby="ringkasanHeading" class="bg-white rounded-3xl p-4 border-2 border-chili-200 shadow-xs space-y-3">
+      <div class="flex items-center justify-between">
+        <h2 id="ringkasanHeading" class="text-sm sm:text-base font-extrabold text-stone-900">
+          Ringkasan Pesanan
+        </h2>
+        <button
+          type="button"
+          onclick="salinRingkasan()"
+          class="text-xs font-bold text-chili-700 bg-chili-50 hover:bg-chili-100 px-3 py-1.5 rounded-xl border border-chili-200 transition active:scale-95"
+        >
+          📋 Salin Teks
+        </button>
+      </div>
+
+      <div id="daftarRingkasanItem" class="rounded-2xl bg-warm-50 border border-warm-200 p-3 space-y-1.5">
+        <p class="text-xs text-stone-500 italic">Belum ada topping atau paket yang dipilih.</p>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t border-stone-200">
+        <span class="text-xs font-semibold text-stone-600">Total Bayar</span>
+        <span id="totalHargaBox" class="text-xl font-extrabold text-chili-600">Rp 0</span>
+      </div>
+    </section>
+  </main>
+
+  <!-- STICKY BOTTOM BAR -->
+  <div class="fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-md border-t border-chili-200 shadow-[0_-6px_20px_rgba(0,0,0,0.08)]">
+    <div class="max-w-xl mx-auto px-4 py-2.5 flex items-center justify-between gap-3">
+      <a href="#ringkasanBox" class="min-w-0 flex-1 group">
+        <div class="flex items-center gap-1.5">
+          <span id="stickyBadgeItem" class="px-2 py-0.5 rounded-full bg-chili-100 text-chili-700 font-extrabold text-[11px]">
+            0 item
+          </span>
+          <span id="stickyBadgeMode" class="text-[11px] font-medium text-stone-500 truncate">
+            • Datang &amp; Menunggu
+          </span>
+        </div>
+        <div id="stickyTotalHarga" class="text-base sm:text-lg font-extrabold text-stone-900 group-hover:text-chili-600 transition truncate">
+          Rp 0
+        </div>
+      </a>
+
+      <button
+        type="button"
+        onclick="kirimPesananKeWA()"
+        class="shrink-0 py-3 px-4 sm:px-5 rounded-2xl bg-[#25D366] hover:bg-[#1ebe5d] active:scale-95 text-white font-extrabold text-xs sm:text-sm shadow-md transition flex items-center gap-2"
+      >
+        <span>💬</span>
+        <span>Kirim Pesanan ke WA</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // State utama aplikasi customer
+    const state = {
+      langkahPesan: "datang", // 'datang' | 'wa'
+      tabAktif: "topping", // 'topping' (default) | 'paket'
+      kategoriFilter: "Semua",
+      levelPedas: KONFIGURASI_WARUNG.levelPedasList[2], // Default Level 2
+      tingkatKuah: KONFIGURASI_WARUNG.tingkatKuahList[0], // Kuah Nyemek
+      tingkatMatang: KONFIGURASI_WARUNG.tingkatMatangList[0], // Matang Sedang
+      qtyTopping: {},
+      qtyPaket: {}
+    };
+
+    // Inisialisasi jumlah item = 0
+    KONFIGURASI_WARUNG.toppingSatuan.forEach((item) => {
+      state.qtyTopping[item.id] = 0;
+    });
+    KONFIGURASI_WARUNG.paketMenu.forEach((item) => {
+      state.qtyPaket[item.id] = 0;
+    });
+
+    function formatRupiah(nominal) {
+      return "Rp " + Number(nominal || 0).toLocaleString("id-ID");
+    }
+
+    let timerToast = null;
+    function tampilToast(pesan, ikon = "✅") {
+      const box = document.getElementById("toastBox");
+      document.getElementById("toastIcon").textContent = ikon;
+      document.getElementById("toastText").textContent = pesan;
+      box.classList.remove("hidden");
+      clearTimeout(timerToast);
+      timerToast = setTimeout(() => box.classList.add("hidden"), 2500);
+    }
+
+    // 1. Pilih Langkah Pemesanan
+    function setLangkahPesan(mode) {
+      state.langkahPesan = mode;
+      const btnDatang = document.getElementById("btnModeDatang");
+      const btnWa = document.getElementById("btnModeWa");
+      const boxDatang = document.getElementById("boxInputDatang");
+      const boxWa = document.getElementById("boxInputWa");
+
+      if (mode === "datang") {
+        btnDatang.className = "text-left p-3.5 rounded-2xl border-2 transition active:scale-[0.98] border-chili-600 bg-chili-50/70";
+        btnWa.className = "text-left p-3.5 rounded-2xl border-2 transition active:scale-[0.98] border-stone-200 bg-white hover:border-chili-300";
+        boxDatang.classList.remove("hidden");
+        boxWa.classList.add("hidden");
+      } else {
+        btnWa.className = "text-left p-3.5 rounded-2xl border-2 transition active:scale-[0.98] border-emerald-600 bg-emerald-50/70";
+        btnDatang.className = "text-left p-3.5 rounded-2xl border-2 transition active:scale-[0.98] border-stone-200 bg-white hover:border-chili-300";
+        boxWa.classList.remove("hidden");
+        boxDatang.classList.add("hidden");
+      }
+      updateUI();
+    }
+
+    // 2. Ganti Tab Menu (Racik Toping Satuan vs Menu Paket Jadi)
+    function gantiTabMenu(tab) {
+      state.tabAktif = tab;
+      const btnTopping = document.getElementById("tabBtnTopping");
+      const btnPaket = document.getElementById("tabBtnPaket");
+      const panelTopping = document.getElementById("panelTopping");
+      const panelPaket = document.getElementById("panelPaket");
+
+      if (tab === "topping") {
+        btnTopping.className = "py-2.5 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition bg-chili-600 text-white shadow-xs flex items-center justify-center gap-1.5";
+        btnPaket.className = "py-2.5 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition text-stone-700 hover:bg-white/70 flex items-center justify-center gap-1.5";
+        panelTopping.classList.remove("hidden");
+        panelPaket.classList.add("hidden");
+      } else {
+        btnPaket.className = "py-2.5 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition bg-chili-600 text-white shadow-xs flex items-center justify-center gap-1.5";
+        btnTopping.className = "py-2.5 px-2.5 rounded-xl text-xs sm:text-sm font-bold transition text-stone-700 hover:bg-white/70 flex items-center justify-center gap-1.5";
+        panelPaket.classList.remove("hidden");
+        panelTopping.classList.add("hidden");
+      }
+      updateUI();
+    }
+
+    // Filter kategori topping satuan
+    function setKategoriFilter(kat) {
+      state.kategoriFilter = kat;
+      renderFilterKategori();
+      renderToppingSatuan();
+    }
+
+    function renderFilterKategori() {
+      const kategoriUnik = ["Semua", ...new Set(KONFIGURASI_WARUNG.toppingSatuan.map((t) => t.kategori))];
+      const container = document.getElementById("filterKategoriBar");
+      container.innerHTML = kategoriUnik
+        .map((kat) => {
+          const aktif = state.kategoriFilter === kat;
+          return `
+            <button
+              type="button"
+              onclick="setKategoriFilter('${kat}')"
+              class="shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition ${
+                aktif
+                  ? "bg-stone-900 text-white border-stone-900"
+                  : "bg-white text-stone-600 border-stone-200 hover:border-stone-400"
+              }"
+            >
+              ${kat}
+            </button>
+          `;
+        })
+        .join("");
+    }
+
+    // Ubah kuantitas topping satuan
+    function ubahQtyTopping(id, delta) {
+      state.qtyTopping[id] = Math.max(0, (state.qtyTopping[id] || 0) + delta);
+      renderToppingSatuan();
+      updateUI();
+    }
+
+    // Ubah kuantitas paket
+    function ubahQtyPaket(id, delta) {
+      state.qtyPaket[id] = Math.max(0, (state.qtyPaket[id] || 0) + delta);
+      renderMenuPaket();
+      updateUI();
+    }
+
+    // Reset seluruh pilihan menu
+    function resetKeranjang() {
+      Object.keys(state.qtyTopping).forEach((k) => (state.qtyTopping[k] = 0));
+      Object.keys(state.qtyPaket).forEach((k) => (state.qtyPaket[k] = 0));
+      renderToppingSatuan();
+      renderMenuPaket();
+      updateUI();
+      tampilToast("Pilihan menu direset", "🔄");
+    }
+
+    // Render daftar Racik Toping Satuan
+    function renderToppingSatuan() {
+      const list = KONFIGURASI_WARUNG.toppingSatuan.filter(
+        (item) => state.kategoriFilter === "Semua" || item.kategori === state.kategoriFilter
+      );
+      const container = document.getElementById("listToppingContainer");
+
+      container.innerHTML = list
+        .map((item) => {
+          const qty = state.qtyTopping[item.id] || 0;
+          return `
+            <div class="px-3.5 py-2.5 flex items-center justify-between gap-3 transition ${
+              qty > 0 ? "bg-chili-50/60" : "bg-white"
+            }">
+              <div class="min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm text-stone-900 truncate">${item.nama}</span>
+                  ${
+                    qty > 0
+                      ? `<span class="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-chili-600 text-white">${qty}x</span>`
+                      : ""
+                  }
+                </div>
+                <div class="text-xs font-bold text-chili-600 mt-0.5">${formatRupiah(item.harga)}</div>
+              </div>
+
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button
+                  type="button"
+                  onclick="ubahQtyTopping('${item.id}', -1)"
+                  aria-label="Kurangi ${item.nama}"
+                  class="w-9 h-9 rounded-xl border border-stone-300 bg-white hover:bg-stone-100 active:scale-90 text-stone-800 font-bold text-base flex items-center justify-center transition"
+                >−</button>
+                <span class="w-6 text-center font-extrabold text-sm text-stone-900">${qty}</span>
+                <button
+                  type="button"
+                  onclick="ubahQtyTopping('${item.id}', 1)"
+                  aria-label="Tambah ${item.nama}"
+                  class="w-9 h-9 rounded-xl bg-chili-600 hover:bg-chili-700 active:scale-90 text-white font-bold text-base flex items-center justify-center transition"
+                >+</button>
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    // Render daftar Menu Paket Jadi
+    function renderMenuPaket() {
+      const container = document.getElementById("listPaketContainer");
+      container.innerHTML = KONFIGURASI_WARUNG.paketMenu
+        .map((paket) => {
+          const qty = state.qtyPaket[paket.id] || 0;
+          return `
+            <div class="p-3.5 rounded-2xl border-2 transition flex items-center justify-between gap-3 ${
+              qty > 0 ? "border-chili-500 bg-chili-50/50" : "border-stone-200 bg-white hover:border-chili-200"
+            }">
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-extrabold text-sm text-stone-900">${paket.nama}</span>
+                  ${
+                    paket.badge
+                      ? `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800">${paket.badge}</span>`
+                      : ""
+                  }
+                </div>
+                <p class="text-xs text-stone-500 mt-0.5 leading-snug">${paket.deskripsi}</p>
+                <div class="mt-1.5 text-sm font-extrabold text-chili-600">${formatRupiah(paket.harga)}</div>
+              </div>
+
+              <div class="flex items-center gap-1.5 shrink-0">
+                ${
+                  qty > 0
+                    ? `
+                  <button
+                    type="button"
+                    onclick="ubahQtyPaket('${paket.id}', -1)"
+                    aria-label="Kurangi ${paket.nama}"
+                    class="w-9 h-9 rounded-xl bg-stone-200 hover:bg-stone-300 active:scale-90 text-stone-800 font-bold text-base flex items-center justify-center transition"
+                  >−</button>
+                  <span class="w-6 text-center font-extrabold text-sm text-stone-900">${qty}</span>
+                  <button
+                    type="button"
+                    onclick="ubahQtyPaket('${paket.id}', 1)"
+                    aria-label="Tambah ${paket.nama}"
+                    class="w-9 h-9 rounded-xl bg-chili-600 hover:bg-chili-700 active:scale-90 text-white font-bold text-base flex items-center justify-center transition"
+                  >+</button>
+                `
+                    : `
+                  <button
+                    type="button"
+                    onclick="ubahQtyPaket('${paket.id}', 1)"
+                    class="py-2 px-3.5 rounded-xl bg-chili-600 hover:bg-chili-700 active:scale-95 text-white font-bold text-xs shadow-xs transition"
+                  >
+                    + Pilih
+                  </button>
+                `
+                }
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    // Render Level Pedas (0 - 5)
+    function pilihLevelPedas(idx) {
+      state.levelPedas = KONFIGURASI_WARUNG.levelPedasList[idx];
+      document.getElementById("teksPedasTerpilih").textContent =
+        `${state.levelPedas.value} • ${state.levelPedas.sub}`;
+      renderLevelPedas();
+      updateUI();
+    }
+
+    function renderLevelPedas() {
+      const container = document.getElementById("gridLevelPedas");
+      container.innerHTML = KONFIGURASI_WARUNG.levelPedasList
+        .map((lvl, idx) => {
+          const aktif = state.levelPedas.value === lvl.value;
+          return `
+            <button
+              type="button"
+              onclick="pilihLevelPedas(${idx})"
+              class="py-2 px-1.5 rounded-2xl border-2 text-center transition active:scale-95 ${
+                aktif
+                  ? "border-chili-600 bg-chili-600 text-white shadow-xs"
+                  : "border-stone-200 bg-white text-stone-800 hover:border-chili-300"
+              }"
+            >
+              <div class="text-xs font-extrabold">${lvl.label}</div>
+              <div class="text-[10px] leading-tight mt-0.5 ${aktif ? "text-chili-100" : "text-stone-500"}">
+                ${lvl.sub}
+              </div>
+            </button>
+          `;
+        })
+        .join("");
+    }
+
+    // Render Tingkat Kuah & Kematangan
+    function pilihKuah(val) {
+      state.tingkatKuah = val;
+      renderKuahDanMatang();
+      updateUI();
+    }
+
+    function pilihMatang(val) {
+      state.tingkatMatang = val;
+      renderKuahDanMatang();
+      updateUI();
+    }
+
+    function renderKuahDanMatang() {
+      const gridKuah = document.getElementById("gridKuah");
+      gridKuah.innerHTML = KONFIGURASI_WARUNG.tingkatKuahList
+        .map((k) => {
+          const aktif = state.tingkatKuah === k;
+          return `
+            <button
+              type="button"
+              onclick="pilihKuah('${k}')"
+              class="py-2.5 px-3 rounded-2xl border-2 text-xs font-bold text-center sm:text-left transition active:scale-95 ${
+                aktif
+                  ? "border-chili-600 bg-chili-50 text-chili-700"
+                  : "border-stone-200 bg-white text-stone-700 hover:border-chili-300"
+              }"
+            >
+              ${k}
+            </button>
+          `;
+        })
+        .join("");
+
+      const gridMatang = document.getElementById("gridMatang");
+      gridMatang.innerHTML = KONFIGURASI_WARUNG.tingkatMatangList
+        .map((m) => {
+          const aktif = state.tingkatMatang === m;
+          return `
+            <button
+              type="button"
+              onclick="pilihMatang('${m}')"
+              class="py-2.5 px-3 rounded-2xl border-2 text-xs font-bold text-center sm:text-left transition active:scale-95 ${
+                aktif
+                  ? "border-chili-600 bg-chili-50 text-chili-700"
+                  : "border-stone-200 bg-white text-stone-700 hover:border-chili-300"
+              }"
+            >
+              ${m}
+            </button>
+          `;
+        })
+        .join("");
+    }
+
+    // Kumpulkan data pesanan terkini
+    function kumpulkanPesanan() {
+      const items = [];
+      let totalHarga = 0;
+      let totalQtyTopping = 0;
+      let totalQtyPaket = 0;
+
+      KONFIGURASI_WARUNG.toppingSatuan.forEach((t) => {
+        const qty = state.qtyTopping[t.id] || 0;
+        if (qty > 0) {
+          const subtotal = t.harga * qty;
+          totalHarga += subtotal;
+          totalQtyTopping += qty;
+          items.push({ id: t.id, nama: t.nama, qty, harga: t.harga, subtotal, jenis: "Topping" });
+        }
+      });
+
+      KONFIGURASI_WARUNG.paketMenu.forEach((p) => {
+        const qty = state.qtyPaket[p.id] || 0;
+        if (qty > 0) {
+          const subtotal = p.harga * qty;
+          totalHarga += subtotal;
+          totalQtyPaket += qty;
+          items.push({ id: p.id, nama: p.nama, qty, harga: p.harga, subtotal, jenis: "Paket" });
+        }
+      });
+
+      const namaPemesan = (document.getElementById("inputNama").value || "").trim();
+      const noMeja = (document.getElementById("inputNoMeja").value || "").trim();
+      const jamAmbil = (document.getElementById("inputJamAmbil").value || "").trim();
+      const catatan = (document.getElementById("inputCatatan").value || "").trim();
+
+      return {
+        items,
+        totalHarga,
+        totalQty: totalQtyTopping + totalQtyPaket,
+        totalQtyTopping,
+        totalQtyPaket,
+        langkahPesan: state.langkahPesan,
+        namaPemesan,
+        noMeja,
+        jamAmbil,
+        catatan,
+        levelPedas: `${state.levelPedas.value} (${state.levelPedas.sub})`,
+        tingkatKuah: state.tingkatKuah,
+        tingkatMatang: state.tingkatMatang
+      };
+    }
+
+    // Update badge tab, ringkasan, dan sticky bar
+    function updateUI() {
+      const data = kumpulkanPesanan();
+
+      // Badge jumlah di masing-masing tab
+      const badgeTop = document.getElementById("badgeQtyTopping");
+      const badgePkt = document.getElementById("badgeQtyPaket");
+
+      if (data.totalQtyTopping > 0) {
+        badgeTop.textContent = data.totalQtyTopping;
+        badgeTop.classList.remove("hidden");
+        badgeTop.className =
+          state.tabAktif === "topping"
+            ? "px-1.5 py-0.2 rounded-full text-[10px] bg-white text-chili-700 font-extrabold"
+            : "px-1.5 py-0.2 rounded-full text-[10px] bg-chili-600 text-white font-extrabold";
+      } else {
+        badgeTop.classList.add("hidden");
+      }
+
+      if (data.totalQtyPaket > 0) {
+        badgePkt.textContent = data.totalQtyPaket;
+        badgePkt.classList.remove("hidden");
+        badgePkt.className =
+          state.tabAktif === "paket"
+            ? "px-1.5 py-0.2 rounded-full text-[10px] bg-white text-chili-700 font-extrabold"
+            : "px-1.5 py-0.2 rounded-full text-[10px] bg-chili-600 text-white font-extrabold";
+      } else {
+        badgePkt.classList.add("hidden");
+      }
+
+      // Ringkasan Item
+      const wadahRingkasan = document.getElementById("daftarRingkasanItem");
+      if (data.items.length === 0) {
+        wadahRingkasan.innerHTML = `<p class="text-xs text-stone-500 italic">Belum ada topping atau paket yang dipilih.</p>`;
+      } else {
+        wadahRingkasan.innerHTML = data.items
+          .map(
+            (it) => `
+          <div class="flex items-center justify-between gap-2 text-xs sm:text-sm">
+            <span class="font-medium text-stone-800">
+              <strong class="text-chili-700">${it.qty}x</strong> ${it.nama}
+            </span>
+            <span class="font-bold text-stone-900 shrink-0">${formatRupiah(it.subtotal)}</span>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      // Total harga & sticky bar
+      document.getElementById("totalHargaBox").textContent = formatRupiah(data.totalHarga);
+      document.getElementById("stickyTotalHarga").textContent = formatRupiah(data.totalHarga);
+      document.getElementById("stickyBadgeItem").textContent = `${data.totalQty} item`;
+      document.getElementById("stickyBadgeMode").textContent =
+        data.langkahPesan === "datang" ? "• Datang & Menunggu" : "• Pesan via WA";
+    }
+
+    // Format pesan WhatsApp
+    function buatTeksWA(data) {
+      const infoLangkah =
+        data.langkahPesan === "datang"
+          ? `1. Datang & Menunggu${data.noMeja ? ` (Meja: ${data.noMeja})` : ""}`
+          : `2. Pesan via WA (Matang lalu diambil)${data.jamAmbil ? ` — ${data.jamAmbil}` : ""}`;
+
+      const daftarBaris =
+        data.items.length > 0
+          ? data.items.map((it) => `• ${it.nama} (${it.qty}x) = ${formatRupiah(it.subtotal)}`).join("\n")
+          : "• (Belum memilih menu)";
+
+      return [
+        `*PESANAN ${KONFIGURASI_WARUNG.namaWarung.toUpperCase()}*`,
+        `Langkah: ${infoLangkah}`,
+        `Nama: ${data.namaPemesan || "Customer"}`,
+        `Pedas: ${data.levelPedas}`,
+        `Kuah & Matang: ${data.tingkatKuah} • ${data.tingkatMatang}`,
+        `Catatan: ${data.catatan || "-"}`,
+        `--------------------------`,
+        daftarBaris,
+        `--------------------------`,
+        `*Total: ${formatRupiah(data.totalHarga)}*`
+      ].join("\n");
+    }
+
+    // Salin teks pesanan dengan aman (execCommand)
+    function salinRingkasan() {
+      const data = kumpulkanPesanan();
+      const teks = buatTeksWA(data);
+      const ta = document.createElement("textarea");
+      ta.value = teks;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+
+      let sukses = false;
+      try {
+        sukses = document.execCommand("copy");
+      } catch (e) {
+        sukses = false;
+      }
+      document.body.removeChild(ta);
+
+      if (sukses) {
+        tampilToast("Ringkasan pesanan disalin!", "📋");
+      } else {
+        tampilToast("Silakan tekan tombol Kirim Pesanan ke WA", "💬");
+      }
+    }
+
+    // Simpan riwayat pesanan terakhir ke localStorage
+    function simpanRiwayatLokal(data) {
+      try {
+        const payload = {
+          langkahPesan: state.langkahPesan,
+          levelPedasValue: state.levelPedas.value,
+          tingkatKuah: state.tingkatKuah,
+          tingkatMatang: state.tingkatMatang,
+          namaPemesan: data.namaPemesan,
+          noMeja: data.noMeja,
+          jamAmbil: data.jamAmbil,
+          catatan: data.catatan,
+          qtyTopping: state.qtyTopping,
+          qtyPaket: state.qtyPaket
+        };
+        localStorage.setItem(KONFIGURASI_WARUNG.storageKey, JSON.stringify(payload));
+        cekTombolPesanUlang();
+      } catch (e) {
+        // Abaikan jika storage dibatasi browser
+      }
+    }
+
+    function cekTombolPesanUlang() {
+      try {
+        const raw = localStorage.getItem(KONFIGURASI_WARUNG.storageKey);
+        const btn = document.getElementById("btnPesanUlangHeader");
+        if (raw) {
+          btn.classList.remove("hidden");
+          btn.classList.add("inline-flex");
+        }
+      } catch (e) {}
+    }
+
+    function muatPesananTerakhir() {
+      try {
+        const raw = localStorage.getItem(KONFIGURASI_WARUNG.storageKey);
+        if (!raw) return;
+        const saved = JSON.parse(raw);
+
+        if (saved.langkahPesan) setLangkahPesan(saved.langkahPesan);
+        if (saved.namaPemesan) document.getElementById("inputNama").value = saved.namaPemesan;
+        if (saved.noMeja) document.getElementById("inputNoMeja").value = saved.noMeja;
+        if (saved.jamAmbil) document.getElementById("inputJamAmbil").value = saved.jamAmbil;
+        if (saved.catatan) document.getElementById("inputCatatan").value = saved.catatan;
+
+        if (saved.levelPedasValue) {
+          const idx = KONFIGURASI_WARUNG.levelPedasList.findIndex((l) => l.value === saved.levelPedasValue);
+          if (idx >= 0) pilihLevelPedas(idx);
+        }
+        if (saved.tingkatKuah) pilihKuah(saved.tingkatKuah);
+        if (saved.tingkatMatang) pilihMatang(saved.tingkatMatang);
+
+        if (saved.qtyTopping) {
+          Object.keys(state.qtyTopping).forEach((k) => {
+            state.qtyTopping[k] = Number(saved.qtyTopping[k] || 0);
+          });
+        }
+        if (saved.qtyPaket) {
+          Object.keys(state.qtyPaket).forEach((k) => {
+            state.qtyPaket[k] = Number(saved.qtyPaket[k] || 0);
+          });
+        }
+
+        renderToppingSatuan();
+        renderMenuPaket();
+        updateUI();
+        tampilToast("Pesanan terakhir dimuat!", "🔁");
+      } catch (e) {
+        tampilToast("Gagal memuat riwayat", "⚠️");
+      }
+    }
+
+    // Validasi & buka WhatsApp
+    function kirimPesananKeWA() {
+      const data = kumpulkanPesanan();
+      const errNama = document.getElementById("errNama");
+      const inputNama = document.getElementById("inputNama");
+
+      if (data.items.length === 0) {
+        tampilToast("Pilih minimal 1 topping atau paket dulu!", "🌶️");
+        document.getElementById("menuHeading").scrollIntoView({ behavior: "smooth", block: "center" });
+        return;
+      }
+
+      if (!data.namaPemesan) {
+        errNama.classList.remove("hidden");
+        inputNama.focus();
+        inputNama.scrollIntoView({ behavior: "smooth", block: "center" });
+        tampilToast("Isi nama pemesan dulu ya", "✍️");
+        return;
+      }
+
+      errNama.classList.add("hidden");
+      simpanRiwayatLokal(data);
+
+      const pesanEncoded = encodeURIComponent(buatTeksWA(data));
+      const waUrl = `https://wa.me/${KONFIGURASI_WARUNG.noWhatsApp}?text=${pesanEncoded}`;
+      window.open(waUrl, "_blank", "noopener,noreferrer");
+    }
+
+    // Inisialisasi awal halaman
+    (function init() {
+      renderFilterKategori();
+      renderToppingSatuan();
+      renderMenuPaket();
+      renderLevelPedas();
+      renderKuahDanMatang();
+      cekTombolPesanUlang();
+      updateUI();
+    })();
+  </script>
+</body>
+</html>
